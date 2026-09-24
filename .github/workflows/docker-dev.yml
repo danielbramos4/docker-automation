@@ -9,6 +9,9 @@ on:
 jobs:
   docker-up:
     runs-on: ubuntu-latest
+    env:
+      # Os testes rodam no runner e acessam a porta publicada pelo Mongo.
+      MONGO_URI: mongodb://root:example@localhost:27017/burguer_app_db?authSource=admin
     steps:
       # 1️⃣ Clonar o repositório
       - name: Checkout repository
@@ -27,22 +30,14 @@ jobs:
           fi
           docker-compose --version
 
-      # 4️⃣ Mascarar MONGO_URI secret
-      - name: Mask MONGO_URI secret
-        run: echo "::add-mask::${{ secrets.MONGO_URI }}"
-
       # 5️⃣ Criar .env para todos os microsserviços
       - name: Create .env files
         working-directory: burguer-app
         run: |
           for service in user-service product-service order-service auth-service; do
             mkdir -p $service
-            echo "MONGO_URI=${{ secrets.MONGO_URI }}" > $service/.env
+            printf 'MONGO_URI=%s\n' "$MONGO_URI" > "$service/.env"
           done
-
-      # 6️⃣ Exportar variável de ambiente (opcional)
-      - name: Export MONGO_URI
-        run: export MONGO_URI=${{ secrets.MONGO_URI }}
 
       # 7️⃣ Subir containers (override de dev)
       - name: Bring up Docker Compose (Dev)
