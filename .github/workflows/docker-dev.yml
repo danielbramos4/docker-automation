@@ -87,11 +87,14 @@ jobs:
 
       # 1️⃣1️⃣ Verificação de vulnerabilidades com Trivy (sem docker run)
       - name: Install Trivy
+        env:
+          TRIVY_VERSION: "0.74.0"
         run: |
           sudo apt-get update
           sudo apt-get install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.65.0_Linux-64bit.deb
-          sudo dpkg -i trivy_0.65.0_Linux-64bit.deb
+          wget "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.deb"
+          sudo dpkg -i "trivy_${TRIVY_VERSION}_Linux-64bit.deb"
+          trivy --version
 
       - name: Scan auth-service image with Trivy
         run: trivy image --severity HIGH,CRITICAL burguer-app-auth-service:latest
