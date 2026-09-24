@@ -1,0 +1,37 @@
+
+services:
+  mongo:
+    build: ./mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - microservices-network
+
+  auth-service:
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/burguer_app_db?authSource=admin
+
+
+  user-service:
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/burguer_app_db?authSource=admin
+
+
+  order-service:
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/burguer_app_db?authSource=admin
+
+
+  product-service:
+    environment:
+      - MONGO_URI=mongodb://root:example@mongo:27017/burguer_app_db?authSource=admin
+
+volumes:
+  mongo_data:
